@@ -111,9 +111,9 @@ async def on_member_join(member):
     account_created = member.created_at
     now = datetime.now(timezone.utc)
     delta = now - account_created
-    timeout_until = minimum_age - delta
     if delta <= minimum_age:
-        await member.send(f'Your account does not meet the minimum creation date requirements; therefore, you have been timed out. Please check back in {timeout_until.days} days {round(timeout_until.seconds/3600, 2)} hours! :smile:')
+        timeout_until = minimum_age - delta
+        await member.send(f'Your account does not meet the minimum creation date requirements; therefore, you have been timed out. Please check back later! :smile:')
         await member.timeout(timeout_until, reason="Account doesn't meet minimum creation date requirements")
         await report_channel.send(f'Timed out new user for account age: {member.mention}')
         return

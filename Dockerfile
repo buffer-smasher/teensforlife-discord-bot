@@ -1,7 +1,12 @@
 FROM python:3.12
 
+WORKDIR /app
+
 ADD bot.py .
 
-RUN pip3 install aiosqlite discord python-dotenv
+COPY requirements.txt ./
+RUN pip3 install -r requirements.txt
 
-CMD [ "python", "./bot.py" ]
+COPY . .
+
+CMD [ "python", "-u", "./bot.py" ]

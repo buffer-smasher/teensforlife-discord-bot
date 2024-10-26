@@ -1,0 +1,7 @@
+services:
+  tfl-discord-bot:
+    image: tfl-discord-bot
+    container_name: tfl-discord-bot
+    restart: unless-stopped
+    env_file:
+      - .env

@@ -2,13 +2,15 @@
 ---
 The following are instruction on how to run this using your own bot
 
-### Prerequisites
-- Docker
-- Git
-- Discord bot
-
+### Features
+- Ban new users based on flagged words in name
+- Timeout new users based on account creation date
 
 ### Installation
+Prerequisites:
+- Docker or Python
+- Git
+
 First, clone this repository 
 `git clone https://github.com/TeensForLife/discord-bot`
 
@@ -38,4 +40,5 @@ The container should now be running disconnected from your terminal window
 If for whatever reason I am unable to maintain the existing bot and you wish to use the token you can contact me at:
 
 Discord: illiterate.elephant
+
 Email: githubalt.cake077@silomails.com 

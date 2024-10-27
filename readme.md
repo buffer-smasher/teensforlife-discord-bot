@@ -5,6 +5,8 @@ The following are instruction on how to run this using your own bot
 ### Features
 - Ban new users based on flagged words in name
 - Timeout new users based on account creation date
+- Anonymous chatting
+- Daily quotes
 
 ### Installation
 Prerequisites:

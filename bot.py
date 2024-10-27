@@ -5,12 +5,13 @@ import json
 import sqlite3
 import discord
 import aiosqlite
+import asyncio
 from discord.ext import commands
 from discord import app_commands
 from dotenv import load_dotenv
 
-# TODO: Reminder to set reports channel
-# TODO: Only display commands accessible at user's permission level
+# TODO: One command to set channels
+# TODO: Think of more ideas
 
 load_dotenv()
 TOKEN = os.getenv('BOT_TOKEN')
@@ -35,7 +36,8 @@ def load_db():
         minimumAge INTEGER DEFAULT 3,
         reportsChannel INTEGER,
         welcomeChannel INTEGER,
-        anonymousChannel INTEGER
+        anonymousChannel INTEGER,
+        quotesChannel INTEGER
     )
     ''')
     cursor.execute('''
@@ -61,7 +63,7 @@ async def execute_query(query, params=()):
             return await cursor.fetchall()
 
 async def load_cogs():
-    cogs_list = ['authentication', 'anonymous']
+    cogs_list = ['authentication', 'anonymous', 'quotes', 'setchannels']
     for cog in cogs_list:
         await bot.load_extension(f'cogs.{cog}')
 
@@ -71,8 +73,6 @@ async def sync_commands():
 
 @bot.event
 async def on_ready():
-    await load_cogs()
-
     for guild in bot.guilds:
         await execute_query('INSERT OR IGNORE INTO guildConfigs(guildid) VALUES (?)', (guild.id,))
 
@@ -82,7 +82,7 @@ async def on_ready():
 
 
     print('Logged in as {0.user}'.format(bot))
-    print('Version: 1.03')
+    print('Version: 1.05')
 
 
 @bot.event
@@ -101,5 +101,6 @@ async def custom_help(inter: discord.Interaction):
     await inter.response.send_message(help_text)
 
 load_db()
+asyncio.run(load_cogs())
 bot.run(TOKEN)
 

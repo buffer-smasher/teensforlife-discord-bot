@@ -125,17 +125,5 @@ class Authentication(commands.Cog):
         await inter.response.send_message(f"Successfully removed user '{username}' from exception list")
 
 
-    @app_commands.command(name='reports_channel', description='Sets channel where user reports will be sent')
-    async def set_reports_channel(self, inter: discord.Interaction, channel: discord.TextChannel):
-        await self.execute_query('UPDATE guildConfigs SET reportsChannel = ? WHERE guildid = ?', (channel.id, inter.guild.id))
-        await inter.response.send_message(f'Set reports channel to {channel.mention}')
-
-
-    @app_commands.command(name='welcome_channel', description='Sets welcome channel')
-    async def set_welcome_channel(self, inter: discord.Interaction, channel: discord.TextChannel):
-        await self.execute_query('UPDATE guildConfigs SET welcomeChannel = ? WHERE guildid = ?', (channel.id, inter.guild.id))
-        await inter.response.send_message(f'Set welcome channel to {channel.mention}')
-
-
 async def setup(bot):
     await bot.add_cog(Authentication(bot))

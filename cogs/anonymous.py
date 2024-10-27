@@ -31,7 +31,8 @@ class Anonymous(commands.Cog):
 
         async def button_callback(inter: discord.Interaction):
             await inter.response.defer()
-            bot_msg = await inter.channel.send(message)
+            anon_msg = '> ### [Anon]\n> ' + message
+            bot_msg = await inter.channel.send(anon_msg)
 
             timestamp = datetime.now(timezone.utc)
             await self.execute_query('''
@@ -46,12 +47,6 @@ class Anonymous(commands.Cog):
 
         confirm_dialogue = f'## Is this the message you want to send?\n\n`{message}`\n\nPlease note that your information will be **logged** for review if this message is found to contain inappropriate content.'
         await inter.response.send_message(confirm_dialogue, ephemeral=True, view=view)
-
-
-    @app_commands.command(name='anon_channel', description='Sets channel where /anon command can be used')
-    async def set_anon_channel(self, inter: discord.Interaction, channel: discord.TextChannel):
-        await self.execute_query('UPDATE guildConfigs SET anonymousChannel = ? WHERE guildid = ?', (channel.id, inter.guild.id))
-        await inter.response.send_message(f'Set anonymous channel to {channel.mention}')
 
 
 async def setup(bot):

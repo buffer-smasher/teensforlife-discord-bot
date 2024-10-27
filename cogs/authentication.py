@@ -78,7 +78,7 @@ class Authentication(commands.Cog):
             return
 
 
-    @app_commands.command(name='account-age', description='Set minimum account age for new members. Counts in days from present time')
+    @app_commands.command(name='account_age', description='Set minimum account age for new members. Counts in days from present time')
     @app_commands.checks.has_permissions(kick_members=True)
     async def set_min_creation_date(self, inter: discord.Interaction, days: int):
         try:
@@ -89,15 +89,15 @@ class Authentication(commands.Cog):
             return
 
 
-    @app_commands.command(name='bypass-user', description='Add exclusion to account auto-filter based on user ID')
+    @app_commands.command(name='bypass_user', description='Add exclusion to account auto-filter based on user ID')
     @app_commands.checks.has_permissions(ban_members=True)
-    async def allow_user_age(self, inter: discord.Interaction, userID: int):
+    async def allow_user_age(self, inter: discord.Interaction, user_id: int):
         conn = await aiosqlite.connect('users.db')
         cursor = await conn.cursor()
 
         try:
-            username = await self.bot.fetch_user(userID)
-            valid = await self.execute_query('SELECT userid FROM kickExceptions WHERE userid = ?', (userID,))
+            username = await self.bot.fetch_user(user_id)
+            valid = await self.execute_query('SELECT userid FROM kickExceptions WHERE userid = ?', (user_id,))
             if valid:
                 await inter.response.send_message(f"User '{username}' already excluded")
                 return
@@ -105,33 +105,33 @@ class Authentication(commands.Cog):
             await inter.response.send_message('Please pass valid user ID')
             return
 
-        await self.execute_query('INSERT INTO kickExceptions (userid) VALUES (?)', (userID,))
+        await self.execute_query('INSERT INTO kickExceptions (userid) VALUES (?)', (user_id,))
         await inter.response.send_message(f"Successfully added user '{username}' to exception list")
 
 
-    @app_commands.command(name='bypass-user-remove', description='Remove existing exclusion to account auto-filter based on user ID')
+    @app_commands.command(name='bypass_user_remove', description='Remove existing exclusion to account auto-filter based on user ID')
     @app_commands.checks.has_permissions(ban_members=True)
-    async def deny_user_age(self, inter: discord.Interaction, userID: int):
+    async def deny_user_age(self, inter: discord.Interaction, user_id: int):
         try:
-            username = await self.bot.fetch_user(userID)
-            valid = await self.execute_query('SELECT userid FROM kickExceptions WHERE userid = ?', (userID,))
+            username = await self.bot.fetch_user(user_id)
+            valid = await self.execute_query('SELECT userid FROM kickExceptions WHERE userid = ?', (user_id,))
             if not valid:
                 await inter.response.send_message('User ID not in table, ignoring')
                 return
         except (ValueError, discord.NotFound, discord.HTTPException):
             await inter.response.send_message('Please pass valid user ID')
             return
-        await self.execute_query('DELETE FROM kickExceptions WHERE userid = ?', (userID,))
+        await self.execute_query('DELETE FROM kickExceptions WHERE userid = ?', (user_id,))
         await inter.response.send_message(f"Successfully removed user '{username}' from exception list")
 
 
-    @app_commands.command(name='reports-channel', description='Sets reports channel to #mentioned channel')
+    @app_commands.command(name='reports_channel', description='Sets channel where user reports will be sent')
     async def set_reports_channel(self, inter: discord.Interaction, channel: discord.TextChannel):
         await self.execute_query('UPDATE guildConfigs SET reportsChannel = ? WHERE guildid = ?', (channel.id, inter.guild.id))
         await inter.response.send_message(f'Set reports channel to {channel.mention}')
 
 
-    @app_commands.command(name='welcome-channel', description='Sets welcome channel to #mentioned channel')
+    @app_commands.command(name='welcome_channel', description='Sets welcome channel')
     async def set_welcome_channel(self, inter: discord.Interaction, channel: discord.TextChannel):
         await self.execute_query('UPDATE guildConfigs SET welcomeChannel = ? WHERE guildid = ?', (channel.id, inter.guild.id))
         await inter.response.send_message(f'Set welcome channel to {channel.mention}')

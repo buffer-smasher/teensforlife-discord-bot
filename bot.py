@@ -63,7 +63,7 @@ async def execute_query(query, params=()):
             return await cursor.fetchall()
 
 async def load_cogs():
-    cogs_list = ['authentication', 'anonymous', 'quotes', 'setchannels']
+    cogs_list = ['authentication', 'anonymous', 'quotes', 'setchannels', 'greeter']
     for cog in cogs_list:
         await bot.load_extension(f'cogs.{cog}')
 
@@ -82,7 +82,7 @@ async def on_ready():
 
 
     print('Logged in as {0.user}'.format(bot))
-    print('Version: 1.05')
+    print('Version: 1.06')
 
 
 @bot.event

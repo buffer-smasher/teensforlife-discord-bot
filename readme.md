@@ -7,6 +7,7 @@ The following are instruction on how to run this using your own bot
 - Timeout new users based on account creation date
 - Anonymous chatting
 - Daily quotes
+- Greetings
 
 ### Installation
 Prerequisites:

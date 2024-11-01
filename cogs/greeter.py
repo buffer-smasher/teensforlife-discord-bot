@@ -44,7 +44,7 @@ class Greeter(commands.Cog):
                 "   We have dedicated channels for each topic!\n"
                 f"   Head over to {FSHIP_CHAN} for friendships, {REL_CHAN} for relationship advice, and {MENTAL_CHAN} for wellness discussions.\n\n"
                 "3. **How can I find upcoming events?**\n"
-                "   Events are listed in {EVENT_CHAN}.\n"
+                f"   Events are listed in {EVENT_CHAN}.\n"
                 "   Keep an eye out for our announcements for upcoming workshops and fun activities!"
             )
             await inter.response.send_message(features_text)
@@ -85,7 +85,8 @@ class Greeter(commands.Cog):
             )
             await inter.response.send_message(bye_text)
 
-        view = discord.ui.View()
+        view = discord.ui.View(timeout=86400)
+
 
         button1 = discord.ui.Button(label='Community Rules & Values', style=discord.ButtonStyle.primary, row=0)
         button2 = discord.ui.Button(label='Features and Channels', style=discord.ButtonStyle.primary, row=0)
@@ -107,7 +108,10 @@ class Greeter(commands.Cog):
 
         greeting_dialogue = f"Hey there, {member.mention}! :tada:\nWelcome to Teensforlife — your space to connect, grow, and find support.\n\nI’m here to help you get started and answer any questions you might have.\nJust click any of the options below, and I’ll guide you along!\n\n"
 
-        await member.send(greeting_dialogue, view=view)
+        greeting_message = await member.send(greeting_dialogue, view=view)
+
+        await view.wait()
+        await greeting_message.edit(content='This message has expired, please use `/greetme` to see this message again', view=None)
 
 
     @commands.Cog.listener()

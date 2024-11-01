@@ -10,11 +10,19 @@ from discord.ext import commands
 from discord import app_commands
 from dotenv import load_dotenv
 
-# TODO: One command to set channels
-# TODO: Think of more ideas
+# TODO: server statistics per day/month/year (member joins, messages sent, etc.)
+# TODO: adopt a pet rock, everybody likes rocks (need to walk the rock or it dies lol)
+# TODO: collaborative stories/madlibs
+# TODO: weird polls (duck sized horse or horse sized duck)
+# TODO: collaborative spotify playlist
+# TODO: collaborative art, kinda like r/place (this one might be too hard)
+# TODO: think of more ideas
+
 
 load_dotenv()
 TOKEN = os.getenv('BOT_TOKEN')
+
+COG_DIRNAME = 'cogs'
 
 
 intents = discord.Intents.all()
@@ -52,6 +60,16 @@ def load_db():
     )
     ''')
 
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS petRocks (
+        userid INTEGER PRIMARY KEY,
+        rockName TEXT NOT NULL,
+        creationTime TEXT NOT NULL,
+        rockType TEXT NOT NULL,
+        rockLastWalked TEXT
+    )
+    ''')
+
     conn.commit()
     conn.close()
 
@@ -63,9 +81,11 @@ async def execute_query(query, params=()):
             return await cursor.fetchall()
 
 async def load_cogs():
-    cogs_list = ['authentication', 'anonymous', 'quotes', 'setchannels', 'greeter']
-    for cog in cogs_list:
-        await bot.load_extension(f'cogs.{cog}')
+    exclusions = []
+    for filename in os.listdir(COG_DIRNAME):
+        if filename.endswith('.py'):
+            if not filename in exclusions:
+                await bot.load_extension(f'{COG_DIRNAME}.{filename[:-3]}')
 
 async def sync_commands():
     await bot.tree.sync()
@@ -82,7 +102,7 @@ async def on_ready():
 
 
     print('Logged in as {0.user}'.format(bot))
-    print('Version: 1.06')
+    print('Version: 1.07')
 
 
 @bot.event

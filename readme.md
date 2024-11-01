@@ -8,6 +8,7 @@ The following are instruction on how to run this using your own bot
 - Anonymous chatting
 - Daily quotes
 - Greetings
+- Rock pets
 
 ### Installation
 Prerequisites:

@@ -39,5 +39,11 @@ class channel(commands.GroupCog):
         await inter.response.send_message(f'Quotes channel set to {channel.mention}')
 
 
+    @app_commands.command(name='music', description='Channel for playlist collaboration')
+    async def music_channel(self, inter: discord.Interaction, channel: discord.TextChannel):
+        await self.execute_query('UPDATE guildConfigs SET musicChannel = ? WHERE guildid = ?', (channel.id, inter.guild.id))
+        await inter.response.send_message(f'Music channel set to {channel.mention}')
+
+
 async def setup(bot):
     await bot.add_cog(channel(bot))

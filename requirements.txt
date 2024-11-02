@@ -1,3 +1,4 @@
 aiosqlite
 discord
 python-dotenv
+spotipy

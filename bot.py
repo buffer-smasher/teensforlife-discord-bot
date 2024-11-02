@@ -11,7 +11,6 @@ from discord import app_commands
 from dotenv import load_dotenv
 
 # TODO: server statistics per day/month/year (member joins, messages sent, etc.)
-# TODO: adopt a pet rock, everybody likes rocks (need to walk the rock or it dies lol)
 # TODO: collaborative stories/madlibs
 # TODO: weird polls (duck sized horse or horse sized duck)
 # TODO: collaborative spotify playlist
@@ -45,7 +44,8 @@ def load_db():
         reportsChannel INTEGER,
         welcomeChannel INTEGER,
         anonymousChannel INTEGER,
-        quotesChannel INTEGER
+        quotesChannel INTEGER,
+        musicChannel INTEGER
     )
     ''')
     cursor.execute('''
@@ -67,6 +67,13 @@ def load_db():
         creationTime TEXT NOT NULL,
         rockType TEXT NOT NULL,
         rockLastWalked TEXT
+    )
+    ''')
+
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS spotifyPlaylist (
+        url TEXT NOT NULL,
+        addedByUser INTEGER NOT NULL
     )
     ''')
 
@@ -102,7 +109,7 @@ async def on_ready():
 
 
     print('Logged in as {0.user}'.format(bot))
-    print('Version: 1.07')
+    print('Version: 1.08')
 
 
 @bot.event

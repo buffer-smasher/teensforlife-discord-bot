@@ -13,7 +13,6 @@ from dotenv import load_dotenv
 # TODO: server statistics per day/month/year (member joins, messages sent, etc.)
 # TODO: collaborative stories/madlibs
 # TODO: weird polls (duck sized horse or horse sized duck)
-# TODO: collaborative spotify playlist
 # TODO: collaborative art, kinda like r/place (this one might be too hard)
 # TODO: think of more ideas
 
@@ -109,7 +108,7 @@ async def on_ready():
 
 
     print('Logged in as {0.user}'.format(bot))
-    print('Version: 1.08')
+    print('Version: 1.08.1')
 
 
 @bot.event

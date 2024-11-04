@@ -1,6 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
 from spotipy.oauth2 import SpotifyOAuth
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord import app_commands
 from dotenv import load_dotenv
 import aiosqlite
@@ -43,6 +43,16 @@ class playlist(commands.GroupCog):
             json.dump(token_info, f)
 
         return spotipy.Spotify(auth=token_info['access_token'])
+
+
+    async def refresh_token(self):
+        while not self.bot.is_closed():
+            try:
+                self.sp = self.get_spotify_client()
+                await asyncio.sleep(3601)
+            except Exception as error:
+                print('Exception trying to refresh spotify token')
+                print(error)
 
 
     async def execute_query(self, query, params=()):
@@ -114,6 +124,10 @@ class playlist(commands.GroupCog):
         else:
             print(error)
 
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        self.bot.loop.create_task(self.refresh_token())
 
 
 async def setup(bot):

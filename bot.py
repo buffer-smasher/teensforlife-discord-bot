@@ -108,7 +108,7 @@ async def on_ready():
 
 
     print('Logged in as {0.user}'.format(bot))
-    print('Version: 1.08.1')
+    print('Version: 1.09')
 
 
 @bot.event
@@ -124,7 +124,7 @@ async def custom_help(inter: discord.Interaction):
     help_text = '## The following commands are available:'
     for command in bot.tree.get_commands():
         help_text += f'\n- **{command.name}**: {command.description}'
-    await inter.response.send_message(help_text)
+    await inter.response.send_message(help_text, ephemeral=True)
 
 load_db()
 asyncio.run(load_cogs())

@@ -1,0 +1,115 @@
+from discord.ext import commands
+from discord import app_commands
+from PIL import ImageColor
+import aiosqlite
+import discord
+import asyncio
+import numpy
+import cv2
+import io
+
+class canvas(commands.GroupCog):
+    def __init__(self, bot):
+        self.bot = bot
+        self.X_MAX = 200
+        self.Y_MAX = 200
+        self.SCALE_FACTOR = 5
+        self.COLOUR_OPTIONS = {
+            'red': '#ff0000',
+            'green': '#00ff00',
+            'blue': '#0000ff',
+            'orange': '#ff5500',
+            'purple': '#55007f',
+            'pink': '#ffaaff',
+            'yellow': '#ffff00',
+            'brown': '#702b2b',
+            'white': '#ffffff',
+            'black': '#000000',
+            'grey': '#6f6f6f',
+        }
+
+
+    async def execute_query(self, query, params=()):
+        async with aiosqlite.connect('database.db') as conn:
+            async with conn.execute(query, params) as cursor:
+                await conn.commit()
+                return await cursor.fetchall()
+
+
+    async def render_canvas(self):
+        loop = asyncio.get_event_loop()
+        img = numpy.zeros((self.X_MAX*self.SCALE_FACTOR, self.Y_MAX*self.SCALE_FACTOR, 3), dtype=numpy.uint8)
+        colours = await self.execute_query('SELECT x, y, colour FROM pixelGrid')
+        for row in colours:
+            x = row[0]
+            y = row[1]
+            colour_hex = row[2]
+            colour = ImageColor.getcolor(colour_hex, 'RGB')
+            img[x:x+self.SCALE_FACTOR, y:y+self.SCALE_FACTOR] = colour
+        success, encoded_image = await loop.run_in_executor(None, cv2.imencode, '.png', img)
+        return (success, encoded_image)
+
+
+    @app_commands.command(name='paint', description='Paint a single pixel on the canvas')
+    @app_commands.checks.cooldown(5, 60, key=lambda i: i.user.id)
+    @app_commands.describe(colour='Pick a colour')
+    async def paint_pixel(self, inter: discord.Interaction, x: int, y: int, colour: str):
+        # use colour values autocompleted
+        # check for errors in colour name
+        # use regex to check if rgb or hex
+        # add to db in hex form
+        colour_hex = self.COLOUR_OPTIONS[colour]
+        await self.execute_query('INSERT INTO pixelGrid (x, y, colour) VALUES (?, ?, ?)', (x*self.SCALE_FACTOR, y*self.SCALE_FACTOR, colour_hex))
+
+        success, encoded_image = await self.render_canvas()
+        if success:
+            img_bytes = io.BytesIO(encoded_image)
+            file = discord.File(img_bytes, filename='canvas.png')
+            await inter.response.send_message('Added message', file=file, ephemeral=True)
+
+
+    @paint_pixel.autocomplete('colour')
+    async def colour_autcomplete(self, inter: discord.Interaction, current: str):
+        options = [colour for colour in self.COLOUR_OPTIONS.keys() if colour.startswith(current.lower())]
+        return [app_commands.Choice(name=colour, value=colour) for colour in options]
+
+
+    @app_commands.command(name='clear', description='Clear the canvas')
+    @app_commands.checks.has_permissions(ban_members=True)
+    async def clear_canvas(self, inter: discord.Interaction, message: str):
+        handled = False
+        async def confirm_callback(inter: discord.Interaction):
+            nonlocal handled
+            if inter.user.id:
+                await self.execute_query('DELETE FROM pixelGrid')
+                await inter.response.send_message(f'Canvas has been cleared by {inter.user.mention}')
+                handled = True
+
+        async def deny_callback(inter: discord.Interaction):
+            nonlocal handled
+            await inter.response.send_message('Command has been aborted', ephemeral=True)
+            handled = True
+
+        view = discord.ui.View(timeout=60)
+
+        confirm_button = discord.ui.Button(label='Confirm', style=discord.ButtonStyle.green)
+        deny_button = discord.ui.Button(label='Deny', style=discord.ButtonStyle.red)
+        confirm_button.callback=confirm_callback
+        deny_button.callback=deny_callback
+        view.add_item(confirm_button)
+        view.add_item(deny_button)
+
+        await inter.response.send_message(f'Are you sure you want to clear the entire cavnas?', view=view, ephemeral=True)
+
+        await view.wait()
+        if not handled:
+            await inter.followup.send('Your request timed out', ephemeral=True)
+
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        await self.render_canvas()
+
+
+async def setup(bot):
+    await bot.add_cog(canvas(bot))

@@ -11,7 +11,6 @@ from discord import app_commands
 from dotenv import load_dotenv
 
 # TODO: server statistics per day/month/year (member joins, messages sent, etc.)
-# TODO: collaborative stories/madlibs
 # TODO: weird polls (duck sized horse or horse sized duck)
 # TODO: collaborative art, kinda like r/place (this one might be too hard)
 # TODO: think of more ideas
@@ -76,6 +75,28 @@ def load_db():
     )
     ''')
 
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS pixelGrid (
+        x INTEGER NOT NULL,
+        y INTEGER NOT NULL,
+        colour TEXT,
+        PRIMARY KEY (x, y)
+    )
+    ''')
+
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS friendQuiz (
+        user_id INTEGER PRIMARY KEY,
+        q1 TEXT,
+        q2 TEXT,
+        q3 TEXT,
+        q4 TEXT,
+        q5 TEXT,
+        q6 TEXT,
+        q7 TEXT
+    )
+    ''')
+
     conn.commit()
     conn.close()
 
@@ -124,7 +145,7 @@ async def custom_help(inter: discord.Interaction):
     help_text = '## The following commands are available:'
     for command in bot.tree.get_commands():
         help_text += f'\n- **{command.name}**: {command.description}'
-    await inter.response.send_message(help_text, ephemeral=True)
+    await inter.response.send_message(help_text)
 
 load_db()
 asyncio.run(load_cogs())
